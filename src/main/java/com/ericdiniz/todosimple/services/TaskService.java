@@ -1,5 +1,6 @@
 package com.ericdiniz.todosimple.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,10 +42,26 @@ public class TaskService {
         return this.taskRepository.save(newObj);
     }
 
-    public void delete(Task obj) {
-        findById(obj.getId());
+    public void delete(Long id) {
+        findById(id);
         try {
-            this.taskRepository.deleteById(obj.getId());
+            this.taskRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Não é possível excluir pois há entidades relaciondas");
+        }
+    }
+
+    public List<Task> buscarTodas() {
+        try {
+            return this.taskRepository.findAll();
+        } catch (Exception e) {
+            throw new RuntimeException("Não é possível excluir pois há entidades relaciondas");
+        }
+    }
+
+    public List<Task> buscarTodasDeUmUsuario(Long userId) {
+        try {
+            return this.taskRepository.findByUser_Id(userId);
         } catch (Exception e) {
             throw new RuntimeException("Não é possível excluir pois há entidades relaciondas");
         }
