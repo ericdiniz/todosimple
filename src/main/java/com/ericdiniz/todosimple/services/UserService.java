@@ -1,5 +1,6 @@
 package com.ericdiniz.todosimple.services;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,14 @@ public class UserService {
         findById(id);
         try {
             this.userRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new RuntimeException("Não é possível excluir pois há entidades relaciondas");
+        }
+    }
+
+    public List<User> buscarTodos() {
+        try {
+            return this.userRepository.findAll();
         } catch (Exception e) {
             throw new RuntimeException("Não é possível excluir pois há entidades relaciondas");
         }
