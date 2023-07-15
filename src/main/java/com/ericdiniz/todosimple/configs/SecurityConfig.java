@@ -33,7 +33,7 @@ public class SecurityConfig {
 
     private static final String[] PUBLIC_MATCHERS = {
             "/",
-            "/task/user/1"
+            "/task/user/?"
     };
     private static final String[] PUBLIC_MATCHERS_POST = {
             "/user",
