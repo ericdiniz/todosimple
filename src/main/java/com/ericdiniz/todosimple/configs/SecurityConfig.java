@@ -20,6 +20,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import com.ericdiniz.todosimple.security.JWTAuthenticationFilter;
+import com.ericdiniz.todosimple.security.JWTAuthorizationFilter;
 import com.ericdiniz.todosimple.security.JWTUtil;
 
 @Configuration
@@ -27,59 +28,61 @@ import com.ericdiniz.todosimple.security.JWTUtil;
 @EnableGlobalMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
-    private AuthenticationManager authenticationManager;
+        private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserDetailsService userDetailsService;
+        @Autowired
+        private UserDetailsService userDetailsService;
 
-    @Autowired
-    private JWTUtil jwtUtil;
+        @Autowired
+        private JWTUtil jwtUtil;
 
-    private static final String[] PUBLIC_MATCHERS = {
-            "/",
-            "/task/user/?"
-    };
-    private static final String[] PUBLIC_MATCHERS_POST = {
-            "/user",
-            "/login"
-    };
+        private static final String[] PUBLIC_MATCHERS = {
+                        "/",
+                        "/task/user/?"
+        };
+        private static final String[] PUBLIC_MATCHERS_POST = {
+                        "/user",
+                        "/login"
+        };
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        @Bean
+        public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
 
-        http.cors().and().csrf().disable();
+                http.cors().and().csrf().disable();
 
-        AuthenticationManagerBuilder authenticationManagerBuilder = http
-                .getSharedObject(AuthenticationManagerBuilder.class);
-        authenticationManagerBuilder.userDetailsService(this.userDetailsService)
-                .passwordEncoder(bCryptPasswordEncoder());
-        this.authenticationManager = authenticationManagerBuilder.build();
+                AuthenticationManagerBuilder authenticationManagerBuilder = http
+                                .getSharedObject(AuthenticationManagerBuilder.class);
+                authenticationManagerBuilder.userDetailsService(this.userDetailsService)
+                                .passwordEncoder(bCryptPasswordEncoder());
+                this.authenticationManager = authenticationManagerBuilder.build();
 
-        http.authorizeHttpRequests()
-                .requestMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
-                .requestMatchers(PUBLIC_MATCHERS).permitAll()
-                .anyRequest().authenticated().and()
-                .authenticationManager(authenticationManager);
+                http.authorizeHttpRequests()
+                                .requestMatchers(HttpMethod.POST, PUBLIC_MATCHERS_POST).permitAll()
+                                .requestMatchers(PUBLIC_MATCHERS).permitAll()
+                                .anyRequest().authenticated().and()
+                                .authenticationManager(authenticationManager);
 
-        http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, this.jwtUtil));
+                http.addFilter(new JWTAuthenticationFilter(this.authenticationManager, this.jwtUtil));
+                http.addFilter(new JWTAuthorizationFilter(this.authenticationManager, this.jwtUtil,
+                                this.userDetailsService));
 
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
 
-        return http.build();
-    }
+                return http.build();
+        }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
-        configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE"));
-        final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+        @Bean
+        CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration().applyPermitDefaultValues();
+                configuration.setAllowedMethods(Arrays.asList("POST", "GET", "PUT", "DELETE"));
+                final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 
-    @Bean
-    public BCryptPasswordEncoder bCryptPasswordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+        @Bean
+        public BCryptPasswordEncoder bCryptPasswordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 
 }
