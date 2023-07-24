@@ -76,10 +76,9 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/user/{id}")
-    public ResponseEntity<List<Task>> buscarTodasTasksDeUmUsuario(@PathVariable Long id) {
-        this.userService.findById(id);
-        List<Task> tasks = this.taskService.buscarTodasDeUmUsuario(id);
+    @GetMapping("/user")
+    public ResponseEntity<List<Task>> buscarTodasTasksDeUmUsuario() {
+        List<Task> tasks = this.taskService.buscarTodasDeUmUsuario();
         return ResponseEntity.ok().body(tasks);
     }
 
